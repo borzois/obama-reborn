@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
 
-class Repository():
+
+class Repository:
     def __init__(self):
         self.__keys = {}
-        
+
         self.mod_path = Path(__file__).parent
         keys_filename = 'keys.json'
         keys_file_path = (self.mod_path / keys_filename).resolve()
