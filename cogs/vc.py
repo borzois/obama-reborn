@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 from pathlib import Path
 import youtube_dl
@@ -16,7 +16,7 @@ ytdl_format_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+    'source_address': '0.0.0.0'  # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
 ffmpeg_options = {
@@ -25,7 +25,8 @@ ffmpeg_options = {
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
-class YTDLSource(discord.PCMVolumeTransformer):
+
+class YTDLSource(disnake.PCMVolumeTransformer):
     def __init__(self, source, *, data, volume=0.5):
         super().__init__(source, volume)
 
@@ -44,7 +45,8 @@ class YTDLSource(discord.PCMVolumeTransformer):
             data = data['entries'][0]
 
         filename = data['url'] if stream else ytdl.prepare_filename(data)
-        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+        return cls(disnake.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+
 
 class Voice(commands.Cog):
     def __init__(self, client):
@@ -63,16 +65,15 @@ class Voice(commands.Cog):
         self.bruh = (self.sound_folder_path / "bruh.mp3").resolve()
         self.cinematic = (self.sound_folder_path / "cinematic.mp3").resolve()
         self.snap = (self.sound_folder_path / "snap.mp3").resolve()
-        
+
         self.chan = None
         self.queue = []
-        
 
-    def queue_play(self, e = None):
+    def queue_play(self, e=None):
         if len(self.queue) != 0:
             current_audio = self.queue.pop(0)
-            print ("now playing:" , current_audio)
-            self.chan.play(discord.FFmpegOpusAudio(current_audio), after = self.queue_play)
+            print("now playing:", current_audio)
+            self.chan.play(disnake.FFmpegOpusAudio(current_audio), after=self.queue_play)
         else:
             pass
 
@@ -80,23 +81,22 @@ class Voice(commands.Cog):
     async def play(self, ctx, url):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice is None:
             self.chan = await vc.connect()
-        
+
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.client.loop, stream=True)
             self.chan.play(player)
-
 
     @commands.command()
     async def gong(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
 
         self.queue.append(self.gongul)
@@ -106,11 +106,11 @@ class Voice(commands.Cog):
     async def laugh(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
-        
+
         self.queue.append(self.laugh)
         if not self.chan.is_playing(): self.queue_play()
 
@@ -118,11 +118,11 @@ class Voice(commands.Cog):
     async def vineboom(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
-        
+
         self.queue.append(self.vineboom)
         if not self.chan.is_playing(): self.queue_play()
 
@@ -130,9 +130,9 @@ class Voice(commands.Cog):
     async def wetfart(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
 
         self.queue.append(self.wetfart)
@@ -142,9 +142,9 @@ class Voice(commands.Cog):
     async def knock(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
 
         self.queue.append(self.knock)
@@ -154,9 +154,9 @@ class Voice(commands.Cog):
     async def greier(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
 
         self.queue.append(self.greier)
@@ -166,9 +166,9 @@ class Voice(commands.Cog):
     async def cartoon(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
 
         self.queue.append(self.cartoon)
@@ -178,9 +178,9 @@ class Voice(commands.Cog):
     async def bruh(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
 
         self.queue.append(self.bruh)
@@ -190,9 +190,9 @@ class Voice(commands.Cog):
     async def cinematic(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
 
         self.queue.append(self.cinematic)
@@ -202,9 +202,9 @@ class Voice(commands.Cog):
     async def snap(self, ctx):
         user = ctx.message.author
         vc = user.voice.channel
-        voice = discord.utils.get(self.client.voice_clients, guild=ctx.guild) 
+        voice = disnake.utils.get(self.client.voice_clients, guild=ctx.guild)
 
-        if voice == None: 
+        if voice == None:
             self.chan = await vc.connect()
 
         self.queue.append(self.snap)

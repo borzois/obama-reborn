@@ -1,6 +1,5 @@
-from pybooru import Danbooru
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import io
 import aiohttp
 
@@ -18,7 +17,7 @@ class Booru(commands.Cog):
                 if resp.status != 200:
                     return await ctx.send('could not download file...')
                 data = io.BytesIO(await resp.read())
-                await ctx.send(file=discord.File(data, 'gay.png'))
+                await ctx.send(file=disnake.File(data, 'gay.png'))
 
     @commands.command()
     async def yuri(self, ctx):
@@ -28,7 +27,7 @@ class Booru(commands.Cog):
                 if resp.status != 200:
                     return await ctx.send('could not download file...')
                 data = io.BytesIO(await resp.read())
-                await ctx.send(file=discord.File(data, 'gay.png'))
+                await ctx.send(file=disnake.File(data, 'gay.png'))
 
     @commands.command()
     async def booru(self, ctx, *args):
@@ -41,6 +40,6 @@ class Booru(commands.Cog):
                 if resp.status != 200:
                     return await ctx.send('could not download file...')
                 data = io.BytesIO(await resp.read())
-                await ctx.send(file=discord.File(data, 'gay.png'))
+                await ctx.send(file=disnake.File(data, 'gay.png'))
 
     

@@ -1,8 +1,8 @@
-import discord
-from discord.ext import commands
+from disnake.ext import commands
 
 import json
 from pathlib import Path
+
 
 class Manual(commands.Cog):
     def __init__(self, client, admins):
@@ -31,8 +31,9 @@ class Manual(commands.Cog):
                 channel_obj = self.client.get_channel(int(self.channels[channel_name]))
                 await channel_obj.send(message)
                 await ctx.send("message sent")
-                print(user_name + " sent '" + message + "' to " + channel_name) 
-            else: raise Exception("invalid user")
+                print(user_name + " sent '" + message + "' to " + channel_name)
+            else:
+                raise Exception("invalid user")
         except Exception:
             await ctx.send("bruhhhh")
 
@@ -45,8 +46,9 @@ class Manual(commands.Cog):
                 user_obj = await self.client.fetch_user(int(self.channels[channel_name]))
                 await user_obj.send(message)
                 await ctx.send("message sent")
-                print(user_name + " sent '" + message + "' to " + channel_name) 
-            else: raise Exception
+                print(user_name + " sent '" + message + "' to " + channel_name)
+            else:
+                raise Exception
         except Exception as e:
             await ctx.send("bruhhhh")
 
@@ -60,6 +62,7 @@ class Manual(commands.Cog):
                 self.update_channels()
                 await ctx.send("defined " + channel_name + " as " + channel_id)
                 print(user_name + " defined " + channel_name + " as " + channel_id)
-            else: raise Exception
+            else:
+                raise Exception
         except Exception:
             await ctx.send("invalid channel id. (shift+copy to get it)")

@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import random
 from pybooru import Danbooru
-import urllib.request
+
 
 class Ip:
     def __init__(self):
@@ -29,14 +29,15 @@ class Ip:
         Returns:
             string: IP string
         """
-        self.__ip_list.sort(key = lambda ip : ip[1]) # sort by number of times shown
+        self.__ip_list.sort(key=lambda ip: ip[1])  # sort by number of times shown
 
         random_range = -1
-        for i in range(len(self.__ip_list)-1):
-            if self.__ip_list[i][1] < self.__ip_list[i+1][1]:
+        for i in range(len(self.__ip_list) - 1):
+            if self.__ip_list[i][1] < self.__ip_list[i + 1][1]:
                 random_range = i
                 break
-        if random_range == -1: random_range = len(self.__ip_list)
+        if random_range == -1:
+            random_range = len(self.__ip_list)
 
         random_index = random.randint(0, random_range)
 
@@ -45,6 +46,7 @@ class Ip:
 
         self.__update()
         return ip
+
 
 class BooruTool:
     def __init__(self):
@@ -56,12 +58,12 @@ class BooruTool:
     def get_random(self, query):
         number_of_posts = int(self.booru.count_posts(query)['counts']['posts'])
         posts_per_page = 20
-        if number_of_posts >=20: # this sucks idc
-            if number_of_posts >=20000: 
+        if number_of_posts >= 20:  # this sucks idc
+            if number_of_posts >= 20000:
                 random_page = random.randint(1, 1000)
             else:
-                random_page = random.randint(1, number_of_posts//20) 
-        else: 
+                random_page = random.randint(1, number_of_posts // 20)
+        else:
             random_page = 1
             posts_per_page = number_of_posts
         if number_of_posts != 0:
@@ -72,6 +74,6 @@ class BooruTool:
                 post_url = random_post['file_url']
             except:
                 post_url = 'https://danbooru.donmai.us' + random_post['source']
-        
+
             return post_url
-        return ValueError ("could not find any images")
+        return ValueError("could not find any images")
