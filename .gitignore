@@ -1,4 +1,5 @@
 /repository/*
+/lavalink/*
 !/repository/repo.py
 
 /.DS_Store
