@@ -17,3 +17,6 @@ class Repository:
 
     def get_admins(self):
         return self.__keys['admins']
+
+    def get_llkey(self):
+        return self.__keys['llkey']
