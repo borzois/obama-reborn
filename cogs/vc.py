@@ -5,6 +5,7 @@ import wavelink
 from pathlib import Path
 import asyncio
 
+
 class Voice(commands.Cog):
     def __init__(self, client, lavalink_key):
         self.client = client
@@ -52,8 +53,9 @@ class Voice(commands.Cog):
         else:
             await player.disconnect()
 
-    @commands.Cog.listener()
-    async def on_voice_server_update(data: Dict[str, Any]) → None
+    # @commands.Cog.listener()
+    # async def on_voice_state_update(self, data: [str, any]) -> None:
+    #     print("door stuck", data)
 
     async def queue_play(self):
         if not self.queue.is_empty:
@@ -69,21 +71,53 @@ class Voice(commands.Cog):
             self.player: wavelink.Player = ctx.voice_client
 
     @commands.command()
+    async def queue(self, ctx):
+        queue_string = ""
+        pos = 1
+        for song in self.queue:
+            queue_string = queue_string + str(pos) + ". **" + song.info['title'] + "**\n"
+            pos += 1
+        await ctx.send(queue_string)
+
+    @commands.command()
+    async def clear(self, ctx):
+        self.queue.clear()
+        await self.player.disconnect()
+        await ctx.send("Queue cleared")
+
+    @commands.command()
+    async def pause(self, ctx):
+        await self.player.pause()
+        await ctx.send("Paused")
+
+    @commands.command()
+    async def resume(self, ctx):
+        await self.player.resume()
+        await ctx.send("Resumed")
+
+    @commands.command()
+    async def skip(self, ctx):
+        print(self.player.track.length)
+        await self.player.seek(self.player.track.length * 1000)  # seeks to the end
+        await ctx.send("Skipped")
+
+    @commands.command()
     async def play(self, ctx, *, search: wavelink.YouTubeTrack):
         print(ctx.message.author, "requested", search.uri)
         await self.vc_init(ctx)
 
         self.queue.put(search)
-        await ctx.send("Added *" + search.title + "* to queue")
+        await ctx.send("Added **" + search.title + "** to queue")
         if not self.player.is_playing():
             await self.queue_play()
 
     @commands.command()
     async def gong(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['gong'])
+
+        self.queue.put(self.sounds['gong'])
         if not self.player.is_playing():
-            self.queue_play()
+            await self.queue_play()
 
     @commands.command()
     async def laugh(self, ctx):
