@@ -26,7 +26,7 @@ async def on_ready():
 
 client.add_cog(Manual(client, repo.get_admins()))
 client.add_cog(Misc(client, ip_manager))
-client.add_cog(Voice(client))
+client.add_cog(Voice(client, repo.get_llkey()))
 client.add_cog(Booru(client, booru_tool))
 
 client.run(repo.get_token())
