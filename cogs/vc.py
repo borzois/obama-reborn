@@ -1,9 +1,31 @@
-import disnake
 from disnake.ext import commands
 import wavelink
 
 from pathlib import Path
 import asyncio
+
+
+def get_track_length(track):
+    seconds = int(track.info['length'] / 1000)
+    # get seconds
+    sec_mod = int(seconds % 60)
+    if sec_mod < 10:
+        sec_str = "0" + str(sec_mod)
+    else:
+        sec_str = str(sec_mod)
+
+    # get minutes
+    min_div = int((seconds % 3600) / 60)
+    if min_div == 0:
+        min_str = "00"
+    elif min_div < 10:
+        min_str = "0" + str(min_div)
+    else:
+        min_str = str(min_div)
+
+    if seconds < 3600:
+        return min_str + ":" + sec_str
+    return str(int(seconds/3600)) + ":" + min_str + ":" + sec_str
 
 
 class Voice(commands.Cog):
@@ -33,7 +55,6 @@ class Voice(commands.Cog):
         client.loop.create_task(self.connect_nodes())
 
     async def connect_nodes(self):
-        """Connect to our Lavalink nodes."""
         await self.client.wait_until_ready()
 
         await wavelink.NodePool.create_node(bot=self.client,
@@ -44,6 +65,7 @@ class Voice(commands.Cog):
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, player: wavelink.Player, track: wavelink.Track):
         print("now playing:", track)
+        # TODO: get this to send a message
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, player: wavelink.Player, track: wavelink.Track, reason):
@@ -57,6 +79,12 @@ class Voice(commands.Cog):
     # async def on_voice_state_update(self, data: [str, any]) -> None:
     #     print("door stuck", data)
 
+    async def vc_init(self, ctx):
+        if not ctx.voice_client:
+            self.player: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+        else:
+            self.player: wavelink.Player = ctx.voice_client
+
     async def queue_play(self):
         if not self.queue.is_empty:
             current_audio = self.queue.get()
@@ -64,26 +92,35 @@ class Voice(commands.Cog):
 
             await self.player.play(current_audio)
 
-    async def vc_init(self, ctx):
-        if not ctx.voice_client:
-            self.player: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-        else:
-            self.player: wavelink.Player = ctx.voice_client
-
     @commands.command()
     async def queue(self, ctx):
-        queue_string = ""
-        pos = 1
-        for song in self.queue:
-            queue_string = queue_string + str(pos) + ". **" + song.info['title'] + "**\n"
-            pos += 1
-        await ctx.send(queue_string)
+        if self.queue.is_empty:
+            await ctx.send("```\nQueue is empty\n```")
+        else:
+            queue_string = "```\n"
+            pos = 1
+            for song in self.queue:
+                queue_string = queue_string + str(pos) + ". " + song.info['title'] + " - " +  \
+                               get_track_length(song) + "\n"
+                pos += 1
+            queue_string += '```'
+            await ctx.send(queue_string)
 
     @commands.command()
     async def clear(self, ctx):
         self.queue.clear()
         await self.player.disconnect()
         await ctx.send("Queue cleared")
+
+    @commands.command()
+    async def play(self, ctx, *, search: wavelink.YouTubeTrack):
+        print(ctx.message.author, "requested", search.uri)
+        await self.vc_init(ctx)
+
+        self.queue.put(search)
+        await ctx.send("Added **" + search.title + "** to queue")
+        if not self.player.is_playing():
+            await self.queue_play()
 
     @commands.command()
     async def pause(self, ctx):
@@ -98,86 +135,65 @@ class Voice(commands.Cog):
     @commands.command()
     async def skip(self, ctx):
         print(self.player.track.length)
-        await self.player.seek(self.player.track.length * 1000)  # seeks to the end
+        await self.player.seek(self.player.track.length * 1000)  # seeks to the end of the track
         await ctx.send("Skipped")
-
-    @commands.command()
-    async def play(self, ctx, *, search: wavelink.YouTubeTrack):
-        print(ctx.message.author, "requested", search.uri)
-        await self.vc_init(ctx)
-
-        self.queue.put(search)
-        await ctx.send("Added **" + search.title + "** to queue")
-        if not self.player.is_playing():
-            await self.queue_play()
 
     @commands.command()
     async def gong(self, ctx):
         await self.vc_init(ctx)
-
-        self.queue.put(self.sounds['gong'])
-        if not self.player.is_playing():
-            await self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['gong']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def laugh(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['laugh'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['laugh']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def vineboom(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['vineboom'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['vineboom']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def wetfart(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['fart'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['fart']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def knock(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['knock'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['knock']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def greier(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['greier'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['greier']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def cartoon(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['cartoon'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['cartoon']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def bruh(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['bruh'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['bruh']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def cinematic(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['cinematic'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['cinematic']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def snap(self, ctx):
         await self.vc_init(ctx)
-        self.queue.append(self.sound['snap'])
-        if not self.player.is_playing():
-            self.queue_play()
+        search = await wavelink.LocalTrack.search(str(self.sound['snap']), return_first=True)
+        await self.player.play(search)
