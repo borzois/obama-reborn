@@ -3,7 +3,6 @@ from pathlib import Path
 import random
 from pybooru import Danbooru
 
-
 class Ip:
     def __init__(self):
         self.__ip_list = []
@@ -51,11 +50,13 @@ class Ip:
 class BooruTool:
     def __init__(self):
         self.booru = Danbooru('danbooru')
+        self.safebooru = Danbooru('safebooru')
         self.image_directory = '../images/'
         self.mod_path = Path(__file__).parent
         self.image_directory_path = (self.mod_path / self.image_directory).resolve()
 
     def get_random(self, query):
+        # TODO rewrite this
         number_of_posts = int(self.booru.count_posts(query)['counts']['posts'])
         posts_per_page = 20
         if number_of_posts >= 20:  # this sucks idc
@@ -69,11 +70,45 @@ class BooruTool:
         if number_of_posts != 0:
             posts = self.booru.post_list(tags=query, page=random_page, limit=20)
 
-            random_post = posts[random.randint(1, posts_per_page)]
             try:
-                post_url = random_post['file_url']
-            except:
-                post_url = 'https://danbooru.donmai.us' + random_post['source']
+                random_post = posts[random.randint(1, posts_per_page)]
+                try:
+                    post_url = random_post['file_url']
+                except Exception as e:
+                    print(e)
+                    post_url = 'https://danbooru.donmai.us' + random_post['source']
+                return post_url
+            except IndexError as e:
+                print(e)
+                self.get_random(query)  # try again
 
-            return post_url
-        return ValueError("could not find any images")
+        raise ValueError("could not find any images")
+
+    def get_random_safe(self, query):
+        # TODO rewrite this
+        number_of_posts = int(self.safebooru.count_posts(query)['counts']['posts'])
+        posts_per_page = 20
+        if number_of_posts >= 20:  # this sucks idc
+            if number_of_posts >= 20000:
+                random_page = random.randint(1, 1000)
+            else:
+                random_page = random.randint(1, number_of_posts // 20)
+        else:
+            random_page = 1
+            posts_per_page = number_of_posts
+        if number_of_posts != 0:
+            posts = self.safebooru.post_list(tags=query, page=random_page, limit=20)
+
+            try:
+                random_post = posts[random.randint(1, posts_per_page)]
+                try:
+                    post_url = random_post['file_url']
+                except Exception as e:
+                    print(e)
+                    post_url = 'https://danbooru.donmai.us' + random_post['source']
+                return post_url
+            except IndexError as e:
+                print(e)
+                self.get_random(query)  # try again
+
+        raise ValueError("could not find any images")
