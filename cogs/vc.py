@@ -23,6 +23,7 @@ def get_track_length(track):
     else:
         min_str = str(min_div)
 
+    # get hours
     if seconds < 3600:
         return min_str + ":" + sec_str
     return str(int(seconds/3600)) + ":" + min_str + ":" + sec_str
@@ -123,6 +124,16 @@ class Voice(commands.Cog):
             await self.queue_play()
 
     @commands.command()
+    async def soundcloud(self, ctx, *, search: wavelink.SoundCloudTrack):
+        print(ctx.message.author, "requested", search.uri, "(soundcloud)")
+        await self.vc_init(ctx)
+
+        self.queue.put(search)
+        await ctx.send("Added **" + search.title + "** to queue")
+        if not self.player.is_playing():
+            await self.queue_play()
+
+    @commands.command()
     async def pause(self, ctx):
         await self.player.pause()
         await ctx.send("Paused")
@@ -138,6 +149,7 @@ class Voice(commands.Cog):
         await self.player.seek(self.player.track.length * 1000)  # seeks to the end of the track
         await ctx.send("Skipped")
 
+    # local tracks dont work atm
     @commands.command()
     async def gong(self, ctx):
         await self.vc_init(ctx)
