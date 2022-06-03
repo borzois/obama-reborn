@@ -11,7 +11,8 @@
 - .define_channel name id - defines a user/channel
 
 ### todo:
-- queue system for music
-- add music from youtube
-- fix the entire music system tbh
+- ~~queue system for music~~
+- ~~add music from youtube~~
+- ~~fix the entire music system tbh~~
+- fix sound effects
 - daily ips

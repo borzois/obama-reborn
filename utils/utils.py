@@ -3,6 +3,7 @@ from pathlib import Path
 import random
 from pybooru import Danbooru
 
+
 class Ip:
     def __init__(self):
         self.__ip_list = []
