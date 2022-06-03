@@ -29,6 +29,14 @@ def get_track_length(track):
     return str(int(seconds/3600)) + ":" + min_str + ":" + sec_str
 
 
+def get_type(query: str):
+    if "youtube.com/" in query or "youtu.be/" in query:
+        return "youtube"
+    if "soundcloud.com/" in query:
+        return "soundcloud"
+    return "search"
+
+
 class Voice(commands.Cog):
     def __init__(self, client, lavalink_key):
         self.client = client
@@ -114,22 +122,23 @@ class Voice(commands.Cog):
         await ctx.send("Queue cleared")
 
     @commands.command()
-    async def play(self, ctx, *, search: wavelink.YouTubeTrack):
-        print(ctx.message.author, "requested", search.uri)
+    async def play(self, ctx, *, query):
         await self.vc_init(ctx)
+        query_type = get_type(query)
 
-        self.queue.put(search)
-        await ctx.send("Added **" + search.title + "** to queue")
-        if not self.player.is_playing():
-            await self.queue_play()
+        if query_type == "youtube" or query_type == "soundcloud":
+            tracks = await self.player.node.get_tracks(query=query, cls=wavelink.Track)
+            if len(tracks) != 0:
+                track = tracks[0]
+            else:
+                await ctx.send("Invalid link")
+                return
+        else:
+            track = await wavelink.YouTubeTrack.search(query, return_first=True)
 
-    @commands.command()
-    async def soundcloud(self, ctx, *, search: wavelink.SoundCloudTrack):
-        print(ctx.message.author, "requested", search.uri, "(soundcloud)")
-        await self.vc_init(ctx)
-
-        self.queue.put(search)
-        await ctx.send("Added **" + search.title + "** to queue")
+        print(ctx.message.author, "requested", track.uri)
+        self.queue.put(track)
+        await ctx.send("Added **" + track.title + "** to queue")
         if not self.player.is_playing():
             await self.queue_play()
 
@@ -149,17 +158,28 @@ class Voice(commands.Cog):
         await self.player.seek(self.player.track.length * 1000)  # seeks to the end of the track
         await ctx.send("Skipped")
 
-    # local tracks dont work atm
+    @commands.command()
+    async def rkelly(self, ctx):
+        search = await wavelink.YouTubeTrack.search("rkelly ignition", return_first=True)
+        await self.vc_init(ctx)
+
+        self.queue.put(search)
+        await ctx.send("Added **" + search.title + "** to queue")
+        if not self.player.is_playing():
+            await self.queue_play()
+
+    # local tracks don't work atm
     @commands.command()
     async def gong(self, ctx):
         await self.vc_init(ctx)
-        search = await wavelink.LocalTrack.search(str(self.sound['gong']), return_first=True)
-        await self.player.play(search)
+        search = await self.player.node.get_tracks(query=str(self.sound['gong']), cls=wavelink.Track)
+        await self.player.play(search[0])
 
     @commands.command()
     async def laugh(self, ctx):
         await self.vc_init(ctx)
-        search = await wavelink.LocalTrack.search(str(self.sound['laugh']), return_first=True)
+        print(str(self.sound['laugh']))
+        search = wavelink.PartialTrack(query=str(self.sound['laugh']), cls=wavelink.LocalTrack)
         await self.player.play(search)
 
     @commands.command()
