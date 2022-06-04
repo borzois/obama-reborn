@@ -1,4 +1,4 @@
 #!/bin/bash
 
-java -jar ./Lavalink-2.jar &
+java -jar ./lavalink/Lavalink-2.jar &
 python3 ./main.py
