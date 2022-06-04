@@ -119,6 +119,7 @@ class Voice(commands.Cog):
     @commands.command()
     async def clear(self, ctx):
         self.queue.clear()
+        await self.player.stop()
         await self.player.disconnect()
         await ctx.send("Queue cleared")
 
