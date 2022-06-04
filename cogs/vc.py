@@ -61,6 +61,7 @@ class Voice(commands.Cog):
         self.player = None
         self.queue = wavelink.Queue()
         self.play_next_song = asyncio.Event()
+        self.looping = False
         client.loop.create_task(self.connect_nodes())
 
     async def connect_nodes(self):
@@ -168,18 +169,25 @@ class Voice(commands.Cog):
         if not self.player.is_playing():
             await self.queue_play()
 
-    # local tracks don't work atm
+    @commands.command()
+    async def loop(self, ctx):
+        if not self.looping:
+            self.looping = True
+            await ctx.send("Now looping")
+        else:
+            self.looping = False
+            await ctx.send("No longer looping")
+
     @commands.command()
     async def gong(self, ctx):
         await self.vc_init(ctx)
-        search = await self.player.node.get_tracks(query=str(self.sound['gong']), cls=wavelink.Track)
-        await self.player.play(search[0])
+        search = await wavelink.LocalTrack.search(str(self.sound['gong']), return_first=True)
+        await self.player.play(search)
 
     @commands.command()
     async def laugh(self, ctx):
         await self.vc_init(ctx)
-        print(str(self.sound['laugh']))
-        search = wavelink.PartialTrack(query=str(self.sound['laugh']), cls=wavelink.LocalTrack)
+        search = await wavelink.LocalTrack.search(str(self.sound['laugh']), return_first=True)
         await self.player.play(search)
 
     @commands.command()
