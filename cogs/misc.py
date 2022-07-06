@@ -19,3 +19,14 @@ class Misc(commands.Cog):
         for i in range(5):
             channel = self.client.get_channel(int(channelid))
             await channel.send('are you gay? {}'.format(baka))
+
+    @commands.Cog.listener()
+    async def on_message(self, ctx):
+        if ctx.author == self.client.user:
+            return
+        if ctx.content.lower().startswith('gm'):
+            print(str(ctx.author))
+            if str(ctx.author) == "serval#2377":
+                await ctx.channel.send("hiiii serval :3")
+            else:
+                await ctx.channel.send("Gm, " + str(ctx.author.name))
