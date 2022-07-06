@@ -59,7 +59,7 @@ class Voice(commands.Cog):
         }
 
         self.player = None
-        self.queue = wavelink.Queue()
+        self.queues = {}
         self.play_next_song = asyncio.Event()
         self.looping = False
         client.loop.create_task(self.connect_nodes())
@@ -83,6 +83,11 @@ class Voice(commands.Cog):
             await self.queue_play()
         else:
             await player.disconnect()
+
+    async def find_queue(self, guild_id):
+        if guild_id not in self.queues:
+            self.queues[guild_id] = wavelink.Queue()
+        return self.queues[guild_id]
 
     async def vc_init(self, ctx):
         if not ctx.voice_client:
@@ -136,7 +141,10 @@ class Voice(commands.Cog):
 
         track.info['channel'] = ctx.channel
         print(ctx.message.author, "requested", track.uri)
-        self.queue.put(track)
+        print(ctx.guild)
+
+        server_queue = await self.find_queue(ctx.guild)
+        server_queue.put(track)
         await ctx.send("Added **" + track.title + "** to queue")
         if not self.player.is_playing():
             await self.queue_play()
