@@ -2,6 +2,7 @@ import disnake
 from disnake.ext import commands
 import io
 import aiohttp
+import logging
 
 
 async def dl_img(image):
@@ -20,7 +21,7 @@ class Booru(commands.Cog):
 
     @commands.command()
     async def gayporn(self, ctx):
-        print(ctx.author.name + " has requested yaoi")
+        logging.info(ctx.author.name + " has requested yaoi")
         image_query = self.booru.get_random("yaoi")
         try:
             data = await dl_img(image_query)
@@ -30,7 +31,7 @@ class Booru(commands.Cog):
 
     @commands.command()
     async def yuri(self, ctx):
-        print(ctx.author.name + " has requested yuri")
+        logging.info(ctx.author.name + " has requested yuri")
         image_query = self.booru.get_random("yuri")
         try:
             data = await dl_img(image_query)
@@ -41,7 +42,7 @@ class Booru(commands.Cog):
     @commands.command()
     async def booru(self, ctx, *args):
         tags = ' '.join(args)
-        print(ctx.author.name + " has requested " + tags)
+        logging.info(ctx.author.name + " has requested " + tags)
 
         try:
             image_query = self.booru.get_random(tags)
@@ -56,7 +57,7 @@ class Booru(commands.Cog):
     @commands.command()
     async def safe(self, ctx, *args):
         tags = ' '.join(args)
-        print(ctx.author.name + " has requested " + tags)
+        logging.info(ctx.author.name + " has requested " + tags)
 
         try:
             image_query = self.booru.get_random_safe(tags)

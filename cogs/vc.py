@@ -3,6 +3,7 @@ import wavelink
 
 from pathlib import Path
 import asyncio
+import logging
 
 
 def get_track_length(track):
@@ -74,11 +75,11 @@ class Voice(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, player: wavelink.Player, track: wavelink.Track):
-        print("now playing:", track)
+        logging.info("now playing:", track)
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, player: wavelink.Player, track: wavelink.Track, reason):
-        print(track, "ended")
+        logging.info(track, "ended")
         if not self.queue.is_empty:
             await self.queue_play()
         else:
@@ -135,7 +136,7 @@ class Voice(commands.Cog):
             track = await wavelink.YouTubeTrack.search(query, return_first=True)
 
         track.info['channel'] = ctx.channel
-        print(ctx.message.author, "requested", track.uri)
+        logging.info(ctx.message.author, "requested", track.uri)
         self.queue.put(track)
         await ctx.send("Added **" + track.title + "** to queue")
         if not self.player.is_playing():

@@ -1,5 +1,5 @@
 from disnake.ext import commands
-
+import logging
 
 class Misc(commands.Cog):
     def __init__(self, client, ip_manager):
@@ -25,7 +25,7 @@ class Misc(commands.Cog):
         if ctx.author == self.client.user:
             return
         if ctx.content.lower().startswith('gm'):
-            print(str(ctx.author))
+            logging.info(str(ctx.author), "has said GM")
             if str(ctx.author) == "serval#2377":
                 await ctx.channel.send("hiiii serval :3")
             else:

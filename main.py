@@ -9,6 +9,10 @@ from cogs.misc import Misc
 from cogs.vc import Voice
 from cogs.booru import Booru
 
+import logging
+
+logging.basicConfig(filename='logs/obama.log', encoding='utf-8', level=logging.INFO, format='%(levelname)s:%(message)s')
+
 # enable gateway intents
 intents = disnake.Intents.default()
 intents.message_content = True
@@ -25,7 +29,8 @@ booru_tool = BooruTool()
 
 @client.event
 async def on_ready():
-    print('{0.user} has awakened'.format(client))
+    print('{0.user} has awakened'.format(client))  # keeping command line print for tradition
+    logging.info('{0.user} has awakened'.format(client))
 
 # attach cogs
 client.add_cog(Manual(client, repo.get_admins()))
