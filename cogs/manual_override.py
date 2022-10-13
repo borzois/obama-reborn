@@ -2,6 +2,7 @@ from disnake.ext import commands
 
 import json
 from pathlib import Path
+import logging
 
 
 class Manual(commands.Cog):
@@ -31,7 +32,7 @@ class Manual(commands.Cog):
                 channel_obj = self.client.get_channel(int(self.channels[channel_name]))
                 await channel_obj.send(message)
                 await ctx.send("message sent")
-                print(user_name + " sent '" + message + "' to " + channel_name)
+                logging.info(user_name + " sent '" + message + "' to " + channel_name)
             else:
                 raise Exception("invalid user")
         except Exception:
@@ -46,7 +47,7 @@ class Manual(commands.Cog):
                 user_obj = await self.client.fetch_user(int(self.channels[channel_name]))
                 await user_obj.send(message)
                 await ctx.send("message sent")
-                print(user_name + " sent '" + message + "' to " + channel_name)
+                logging.info(user_name + " sent '" + message + "' to " + channel_name)
             else:
                 raise Exception
         except Exception as e:
@@ -61,7 +62,7 @@ class Manual(commands.Cog):
                 self.channels[channel_name] = channel_id
                 self.update_channels()
                 await ctx.send("defined " + channel_name + " as " + channel_id)
-                print(user_name + " defined " + channel_name + " as " + channel_id)
+                logging.info(user_name + " defined " + channel_name + " as " + channel_id)
             else:
                 raise Exception
         except Exception:
