@@ -1,6 +1,7 @@
 /repository/*
 /lavalink/*
 /.idea/*
+/logs/*
 !/repository/repo.py
 
 /.DS_Store
