@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import random
 from pybooru import Danbooru
+import logging
 
 
 class Ip:
@@ -76,11 +77,11 @@ class BooruTool:
                 try:
                     post_url = random_post['file_url']
                 except Exception as e:
-                    print(e)
+                    logging.error(e)
                     post_url = 'https://danbooru.donmai.us' + random_post['source']
                 return post_url
             except IndexError as e:
-                print(e)
+                logging.error(e)
                 self.get_random(query)  # try again
 
         raise ValueError("could not find any images")
@@ -105,11 +106,11 @@ class BooruTool:
                 try:
                     post_url = random_post['file_url']
                 except Exception as e:
-                    print(e)
+                    logging.error(e)
                     post_url = 'https://danbooru.donmai.us' + random_post['source']
                 return post_url
             except IndexError as e:
-                print(e)
+                logging.error(e)
                 self.get_random(query)  # try again
 
         raise ValueError("could not find any images")
