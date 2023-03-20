@@ -1,18 +1,30 @@
-# obama bot
+# Obama Discord Bot
 
-### features:
-- .funnydog - sends funny dog
-- .h - sends a random webcam ip
-- .booru [tags] - sends random anime art
+### Features:
+- 10 sound effects
+- art lookup by tags
+- music player with queuing system
+- webapp that displays logs
+- manual control of messages
 
-### whitelist only:
-- .send channel "message" - sends a message to a predefined channel
-- .send_dm user "message" - sends a message to a predefined user
-- .define_channel name id - defines a user/channel
+#### Main commands
+```
+.funnydog - sends borzoi picture
+.h - sends a random insecure webcam ip
+.booru [tags] - sends random anime art
+.play [link] - plays audio from link on voice chat
+```
 
-### todo:
+##### Whitelist only:
+```
+.send channel "message" - sends a message to a predefined channel
+.send_dm user "message" - sends a message to a predefined user
+.define_channel name id - defines a user/channel
+```
+
+### TODO:
 - ~~queue system for music~~
 - ~~add music from youtube~~
 - ~~fix the entire music system tbh~~
-- fix sound effects
-- daily ips
+- ~~fix sound effects~~
+
